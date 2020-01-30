@@ -78,7 +78,7 @@
 
 			<ul id="musiclist">
 				<?php
-					$items = glob("/www/html/cse154/songs/*.mp3");
+					$items = glob("/*.mp3");
 					foreach($items as $item) {
 				?> 
 				<li class="mp3item">	

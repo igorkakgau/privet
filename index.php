@@ -4,7 +4,13 @@
 	Web Programming Step by Step
 	Lab #3, PHP
 	-->
-
+<?php
+	$songs = 5678;
+	$news_pages = 5;
+	if (isset($_GET["newspages"])) {
+		$news_pages = (int) $_GET["newspages"];
+	}
+	?>
 	<head>
 		<title>Music Viewer</title>
 		<meta charset="utf-8" />
@@ -18,8 +24,8 @@
 		<!-- Number of Songs (Variables) -->
 		<p>
 			I love music.
-			I have 1234 total songs,
-			which is over 123 hours of music!
+			I have <?= $songs ?> total songs,
+			which is over <?= (int) $songs / 10 ?> hours of music!
 		</p>
 
 		<!-- Music Results Pages (Loops) -->
@@ -27,25 +33,43 @@
 			<h2>Google's Music Results</h2>
 		
 			<ol>
-				<li><a href="https://www.google.com/search?tbm=nws&amp;q=Music&amp;start=0">Page 1</a></li>
-				<li><a href="https://www.google.com/search?tbm=nws&amp;q=Music&amp;start=10">Page 2</a></li>
-				<li><a href="https://www.google.com/search?tbm=nws&amp;q=Music&amp;start=20">Page 3</a></li>
-				<li><a href="https://www.google.com/search?tbm=nws&amp;q=Music&amp;start=30">Page 4</a></li>
-				<li><a href="https://www.google.com/search?tbm=nws&amp;q=Music&amp;start=40">Page 5</a></li>
+				<?php for( $i = 0; $i < $news_pages; $i++ ) { ?>
+					<li><a href="https://www.google.com/search?tbm=nws&amp;q=Music&amp;start=<?= $i * 10 ?>">Page <?= $i + 1?></a></li>
+				<?php } ?>
 			</ol>
 		</div>
 
 		<!-- Favorite Artists (Arrays) -->
+		<?php
+		 #$arr = ["Britney Spears", "Christina Aguilera", "Justin Bieber", "Jack Johnson"]; 
+		 $arr = file("favorite.txt");
+		?>
 		<!-- Favorite Artists from a File (Files) -->
 		<div class="section">
 			<h2>My Favorite Artists</h2>
 		
 			<ol>
-				<li>Britney Spears</li>
-				<li>Christina Aguilera</li>
-				<li>Justin Bieber</li>
+				<?php for ($i = 0; $i < count($arr); $i++) { ?>
+					<li><a href="https://www.vevo.com/artist/<?= trim(strtolower(str_replace(" ", "-", $arr[$i]))) ?>/"><?= $arr[$i] ?></a></li>
+
+				<?php } ?>
 			</ol>
 		</div>
+
+		<!-- Alternate solution:
+			<?php foreach (file("favorite.txt", FILE_IGNORE_NEW_LINES) as $artist) {
+					$artist_link = implode("-", explode(" ", strtolower($artist)));
+					?>
+
+					<li>
+						<a href="https://www.vevo.com/artist/<?= $artist_link ?>/"><?= $artist ?></a>
+					</li>
+					
+					<?php
+				}
+				?>
+
+		-->
 		
 		<!-- Music (Multiple Files) -->
 		<!-- MP3 Formatting -->
@@ -53,27 +77,38 @@
 			<h2>My Music and Playlists</h2>
 
 			<ul id="musiclist">
-				<li class="mp3item">
-					<a href="http://webster.cs.washington.edu/cse154/songs/Be More.mp3">Be More.mp3</a>
-				</li>
-				
-				<li class="mp3item">
-					<a href="http://webster.cs.washington.edu/cse154/songs/Just Because.mp3">Just Because.mp3</a>
+				<?php
+					$items = glob("/www/html/cse154/songs/*.mp3");
+					foreach($items as $item) {
+				?> 
+				<li class="mp3item">	
+					<a href="/cse154/songs/<?=str_replace(" ", "%20", basename($item))?>"><?= basename($item) ?></a> (<?= round(filesize($item) / 1024) ?> KB)
 				</li>
 
-				<li class="mp3item">
-					<a href="http://webster.cs.washington.edu/cse154/songs/Drift Away.mp3">Drift Away.mp3</a>
-				</li>
+				<?php
+				}
+				?>
 
 				<!-- Exercise 8: Playlists (Files) -->
-				<li class="playlistitem">154-mix.m3u:
-					<ul>
-						<li>Hello.mp3</li>
-						<li>Be More.mp3</li>
-						<li>Drift Away.mp3</li>
-						<li>Panda Sneeze.mp3</li>
-					</ul>
-				</li>
+				<?php
+				$playlists = glob("/www/html/cse154/songs/*.m3u");
+				foreach($playlists as $playlist) {
+				?>
+				<li class="playlistitem">
+						<?= basename($playlist) ?>:
+						<ul>
+							<?php
+							foreach (file($playlist, FILE_IGNORE_NEW_LINES) as $line) {
+								if (strpos($line, "#") === FALSE) {
+									?>
+									<li> <?= $line ?> </li>
+									<?php 
+								}
+							}
+							?>
+						</ul>
+					</li>
+				<?php } ?>
 			</ul>
 		</div>
 
